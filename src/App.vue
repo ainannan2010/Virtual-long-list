@@ -1,20 +1,30 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <router-view></router-view>
   </div>
 </template>
+<script>
+export default {
+  data() {
+    return {}
+  },
+}
+</script>>
 
 <style lang="less">
+// 引入公共样式
+@import url('./assets/css/basic.css');
+// 引入公共图标
+@import url('./assets/font-awesome/css/font-awesome.min.css');
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  // max-width: 1640px;
+  margin: 0 auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 #nav {
