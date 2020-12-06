@@ -14,6 +14,24 @@ const routes = [
     name: 'articledetail',
     component: () => import(/* webpackChunkName: "news" */ '@/views/news/ArticleDetail.vue')
   },
+  {
+    path: '/user',
+    name: 'user',
+    component: () => import(/* webpackChunkName: "news" */ '@/views/user/index.vue'),
+    redirect: 'user/index',
+    children: [
+      {
+        path: 'index',
+        name: 'userindex',
+        component: () => import(/* webpackChunkName: "news" */ '@/views/user/list.vue'),
+      },
+      {
+        path: 'detail',
+        name: 'userdetail',
+        component: () => import(/* webpackChunkName: "news" */ '@/views/user/detail.vue'),
+      },
+    ]
+  },
 
 ]
 

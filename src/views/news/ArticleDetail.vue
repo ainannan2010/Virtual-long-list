@@ -1,6 +1,9 @@
 <template>
   <div class="el-dev-header">
-    <div class="el-dev-title">{{title}}</div>
+    <div class="el-dev-title">
+      <span @click="$router.go(-1)">&lt;&lt;&lt;</span>
+      {{$route.params.id}}
+    </div>
     <div class="el-dev-action"></div>
   </div>
 </template>
@@ -12,6 +15,7 @@ export default {
       title: '新闻',
     }
   },
+  created() {},
 }
 </script>
 
@@ -28,6 +32,6 @@ export default {
   align-items: center;
   justify-content: space-between;
   background-color: red;
-  color: #fff
+  color: #fff;
 }
 </style>

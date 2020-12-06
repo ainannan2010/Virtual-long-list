@@ -5,6 +5,7 @@
       <img
         src="~@/img/user.png"
         alt
+        @click="$router.push('/user')"
       />
     </div>
   </div>
