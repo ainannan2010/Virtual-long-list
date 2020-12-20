@@ -12,7 +12,7 @@
       >
         <div
           class="el-dev-item"
-          v-for="item in showList"
+          v-for="(item) in showList"
           :key="item.id"
           @click="gotoDetail(item.id)"
         >
@@ -79,7 +79,8 @@ export default {
       // 顶部导航条的高度
       navMarginTop: 60,
       // 索引开始位置
-      indexStart: 0,
+      startIndex: 0,
+      scrollTop: 0,
     }
   },
   created() {
@@ -87,28 +88,37 @@ export default {
   },
   mounted() {
     // 获取dom元素一般要在mounted里获取
+    this.myResize()
     window.onresize = this.myResize
     window.orientationchange = this.myResize
+  },
+  activated() {
+    // 滚动条回到之前滚动位置
+    this.$nextTick(() => {
+      this.$refs.scrollContainer.scrollTop = this.scrollTop
+    })
   },
   methods: {
     myResize() {
       // ~~ 表示2次取反，就会取到整数，向上取整
-      this.screenContainSize =
-        ~~(
-          (this.$refs.scrollContainer.offsetHeight - this.navMarginTop) /
-          this.oneItemHeight
-        ) + 2
+      this.screenContainSize = ~~(
+        (this.$refs.scrollContainer.offsetHeight - this.navMarginTop) /
+        this.oneItemHeight
+      )
     },
     handleScroll() {
-      // 截流，优化性能
-      this.handlejieliu()
+      // 保存当前的滚动位置
+      this.scrollTop = this.$refs.scrollContainer.scrollTop
+      // 滚动的时候获取数据
+      this.handleThrottle()
     },
-    // 截流
-    handlejieliu() {
+    // 节流优化性能，（对于一些低性能的设备的优化）
+    handleThrottle() {
       let oldTime = Date.now()
       window.requestAnimationFrame(() => {
         const newTime = Date.now()
-        this.setIndexStart()
+        this.setStartIndex()
+        // 使用30这个值是因为稍微合理一点, 浏览器一般是60hz的就是1s钟60hz， 那大概1hz大概就是需要17ms渲染完
         if (newTime - oldTime > 30) {
           oldTime = newTime
           // 递归
@@ -118,16 +128,15 @@ export default {
     },
 
     // 设置当前起始索引位置
-    setIndexStart() {
-      const indexStart = ~~(
+    setStartIndex() {
+      const startIndex = ~~(
         this.$refs.scrollContainer.scrollTop / this.oneItemHeight
       )
-
-      // 如果滚动的时候，this.indexStart 没有发生变化说明展示的数据没有发生变化，就不用做赋值等操作了
-      if (this.indexStart === indexStart) return
-      this.indexStart = indexStart
-      // 结束节点到达底部， 就在加载数据
-      if (this.indexEnd === this.newsList.length && !this.loading) {
+      // 如果滚动的时候，this.startIndex 没有发生变化说明展示的数据没有发生变化，就不用做赋值等操作了
+      if (this.startIndex === startIndex) return
+      this.startIndex = startIndex
+      // 结束节点到达底部， 就再加载数据(并且避免连续发出请求)
+      if (this.endIndex === this.newsList.length && !this.loading) {
         this.getInfo(20)
       }
     },
@@ -148,21 +157,37 @@ export default {
   },
   computed: {
     showList() {
-      return this.newsList.slice(this.indexStart, this.indexEnd)
+      let startIndex = 0
+      const endIndex = 0
+      // 处理paddingTop
+      if (this.startIndex > this.screenContainSize) {
+        startIndex = this.startIndex - this.screenContainSize
+      } else {
+        startIndex = 0
+      }
+
+      return this.newsList.slice(startIndex, this.endIndex)
     },
     // 索引结束位置
-    indexEnd() {
-      let indexEnd = this.indexStart + this.screenContainSize
-      if (!this.newsList[indexEnd]) {
-        indexEnd = this.newsList.length
+    endIndex() {
+      let endIndex = this.startIndex + this.screenContainSize * 2
+      if (!this.newsList[endIndex]) {
+        endIndex = this.newsList.length
       }
-      return indexEnd
+      return endIndex
     },
     handleStyle() {
       // 上占位、下占位
-      const paddingTop = `${this.indexStart * this.oneItemHeight}px`
-      const paddingBottom = `${
-        (this.newsList.length - this.indexEnd) * this.oneItemHeight
+      let paddingTop = '0px'
+      let paddingBottom = '0px'
+      if (this.startIndex > this.screenContainSize) {
+        paddingTop = `${
+          (this.startIndex - this.screenContainSize) * this.oneItemHeight
+        }px`
+      }
+
+      paddingBottom = `${
+        (this.newsList.length - this.endIndex) * this.oneItemHeight
       }px`
 
       return {
@@ -178,10 +203,10 @@ export default {
 .el-dev-box {
   margin-top: 60px;
   height: 100%;
-  height: calc(100% - 60px);
   .el-dev-list {
     overflow: auto;
-    height: calc(100% - 60px);
+    height: calc(100% - 50px);
+    // height: 100%
   }
   .el-dev-item {
     display: flex;

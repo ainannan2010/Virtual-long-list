@@ -27,6 +27,22 @@ module.exports = {
     },
     // after: require('./mock/mock-server.js')
   },
+  // css相关配置
+  // css: {
+  //   // 是否使用css分离插件 ExtractTextPlugin，如果使用的话css将会分离打包，配合按需加载
+  //   extract: true,
+  //   // 是否开启 CSS source maps，在打包后可以直接定位css所在位置
+  //   sourceMap: false,
+  //   // css预设器配置项，所有的 css-loader 选项在这里都是支持的，例如 localIdentName 和 camelCase
+  //   loaderOptions: {
+  //     css: {
+  //       localIdentName: "[name]-[hash]",
+  //       camelCase: "only",
+  //     },
+  //   },
+  //   // 启用 CSS modules for all css / pre-processor files.
+  //   modules: false,
+  // },
   configureWebpack: {
     devtool: process.env.NODE_ENV === 'development' ? 'eval-source-map' : undefined,
     resolve: {
